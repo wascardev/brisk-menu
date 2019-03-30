@@ -72,6 +72,8 @@ static void brisk_menu_applet_dispose(GObject *obj)
 
         g_clear_object(&self->settings);
 
+        g_thread_unref(self->menu_thread);
+
         G_OBJECT_CLASS(brisk_menu_applet_parent_class)->dispose(obj);
 }
 
@@ -177,6 +179,14 @@ static gboolean brisk_menu_applet_startup(BriskMenuApplet *self)
         return G_SOURCE_REMOVE;
 }
 
+static gpointer brisk_menu_load_menus(gpointer data)
+{
+    sleep(5);
+    BriskMenuApplet *self = data;
+    brisk_menu_window_load_menus(BRISK_MENU_WINDOW(self->menu));
+    return NULL;
+}
+
 static void brisk_menu_applet_create_window(BriskMenuApplet *self)
 {
         GtkWidget *menu = NULL;
@@ -205,7 +215,8 @@ static void brisk_menu_applet_create_window(BriskMenuApplet *self)
         g_object_bind_property(menu, "visible", self->toggle, "active", G_BINDING_DEFAULT);
 
         /* Load our menus */
-        brisk_menu_window_load_menus(BRISK_MENU_WINDOW(self->menu));
+        self->menu_thread = g_thread_new("load_menus", (GThreadFunc) brisk_menu_load_menus, self);
+        //brisk_menu_window_load_menus(BRISK_MENU_WINDOW(self->menu));
 
         /* Pump the settings */
         brisk_menu_window_pump_settings(BRISK_MENU_WINDOW(self->menu));

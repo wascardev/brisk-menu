@@ -45,6 +45,7 @@ struct _BriskMenuApplet {
         GtkWidget *menu;              /**<BriskMenuWindow instance */
         GSettings *settings;          /**<Our settings store */
         MatePanelAppletOrient orient; /**<Current position for the panel */
+        GThread *menu_thread;         /**<Thread to load menus */
 };
 
 #define BRISK_TYPE_MENU_APPLET brisk_menu_applet_get_type()
